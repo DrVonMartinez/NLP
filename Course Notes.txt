@@ -1,0 +1,24 @@
+This is the
+"NLP 2012 Dan Jurafsky and Chris Manning (1.1) Intro to NLP"
+from Standford Online
+
+Viterbi
+Naive Bayes
+Maxent Classifiers
+N-gram Language Modeling
+Statistical Parsing
+Inverted index
+tf-idf
+vector models of meaning
+
+CS224N: Natural Language Processing with Deep Learning Course
+
+Course Goals:
+NLP Basics
+Key Methods:
+    Recurrent Networks
+    Attention
+    Transformers
+    etc.
+
+
