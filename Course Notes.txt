@@ -21,4 +21,38 @@ Key Methods:
     Transformers
     etc.
 
+Extrinsic Evaluation: (in-vivo)
+    Compare models on a task and compare accuracy
+Intrinsic Evaluation:
+    Perplexity
+        Bad Approximation unless test data looks just like training data
+        Useful in pilot experiments
+        "Helpful to consider"
+        "The Shannon Game":
+            Predict the next word
+            Unigrams are terrible
+        Better model best predicts an unseen test set.
+        PP(W) = nth_root( PRODUCT( 1 / P(w_i | w_1 ... w_i-1)))
+        "Average Branching Factor"
+        *N-grams overfit*
+
+Backoff:
+    Start with trigram (if good evidence, then bigram, then unigram)
+Interpolation:      *
+    Mix unigram, bigram, trigram
+Stupid Backoff:
+    if trigram:
+        else:
+            if bigram:
+                0.4 * bigram
+            else:
+                0.4 * 0.4 * unigram
+Discriminative Models:
+    weights to improve task not training set
+Parsing-based Models:
+
+Caching Models:
+    recently used words are more likely to appear.
+    These perform very poorly for speech recognition
+
 
