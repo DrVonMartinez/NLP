@@ -6,11 +6,12 @@ import numpy as np
 import numpy as np
 from scipy.optimize import curve_fit
 
-sample_sentence = "<s> I am Sam </s> <s> Sam I am </s> <s> I do not like green eggs and ham </s>"
-test_sentence = '<s> I am Sam </s>'
-test_sentence2 = '<s> I am the Sam </s>'
-test_sentence3 = '<s> I am'
-sample_sentence2 = 'Sam I am I am Sam I do not eat'
+if __name__ == '__main__':
+    sample_sentence = "<s> I am Sam </s> <s> Sam I am </s> <s> I do not like green eggs and ham </s>"
+    test_sentence = '<s> I am Sam </s>'
+    test_sentence2 = '<s> I am the Sam </s>'
+    test_sentence3 = '<s> I am'
+    sample_sentence2 = 'Sam I am I am Sam I do not eat'
 
 
 def powlaw(x, a, b):
@@ -101,8 +102,9 @@ def unigram_prior(sentence: str, training_text: str, k: int):
 
 
 # print(test_sentence2)
-# print(n_gram(test_sentence2, sample_sentence, 1))
-# print(unigram_prior(test_sentence2, sample_sentence, 0))
+if __name__ == '__main__':
+    # print(n_gram(test_sentence2, sample_sentence, 2))
+    print(unigram_prior(test_sentence2, sample_sentence, 0))
 
 
 def good_turing(sentence: str, training_text: str):
@@ -127,7 +129,7 @@ def good_turing(sentence: str, training_text: str):
     __n_c__["N_1"] = _n_c_['N_1']
     __n_c__["N_2"] = _n_c_['N_2']
     __n_c__["N_3"] = _n_c_['N_3']
-    print(__n_c__)
+    # print(__n_c__)
 
     def n_set(stream: str) -> list[str]:
         temp = stream.split(' ')
@@ -163,7 +165,7 @@ fish_test_str = ' '.join(fish_test)
 # print('Good Turing:', e := good_turing('bass', fish_test_str))
 
 
-def discount_bigram(sentence: str, training_text: str, discount=0.75):
+def discount_bigram(sentence: str, training_text: str, discount=0.75) -> float:
     word_count, gram = simple_training(training_text, 2)
 
     def n_set(stream: str) -> list[str]:
@@ -206,7 +208,7 @@ def discount_bigram(sentence: str, training_text: str, discount=0.75):
     return np.exp(sum(map(n_phrase, n_set(sentence))))
 
 
-def higher_order_kneser_ney(sentence, training_text, n, discount=0.75):
+def higher_order_kneser_ney(sentence, training_text, n, discount=0.75) -> float:
     word_count, gram = simple_training(training_text, n)
 
     def n_set(stream: str) -> list[str]:
@@ -254,5 +256,6 @@ def higher_order_kneser_ney(sentence, training_text, n, discount=0.75):
     return np.exp(sum(map(n_phrase, result, [n] * len(result))))
 
 
-print('DB:', discount_bigram(test_sentence3, sample_sentence))
-print('HOKN:', higher_order_kneser_ney(test_sentence3, sample_sentence, 2))
+if __name__ == '__main__':
+    print('DB:', discount_bigram(test_sentence3, sample_sentence))
+    print('HOKN:', higher_order_kneser_ney(test_sentence3, sample_sentence, 2))
