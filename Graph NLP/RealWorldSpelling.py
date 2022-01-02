@@ -1,7 +1,7 @@
 from collections import Counter
 import networkx as nx
 # from N_grams import higher_order_kneser_ney, good_turing, unigram_prior, n_gram
-from N_grams import higher_order_kneser_ney
+# from N_grams import higher_order_kneser_ney
 from Spelling_Correction import one_step_spelling
 from nltk.corpus import brown
 import numpy as np
@@ -16,6 +16,23 @@ def is_word(word):
 
 word_set = Counter(filter(is_word, map(str.lower, brown.words())))
 training_set = ' '.join(list(filter(is_word, map(str.lower, brown.words()))))
+higher_order_sentence = [' '.join(brown.words()[j: j + 2]) for j in range(len(brown.words()) - 2)]
+
+print(higher_order_sentence)
+assert False
+
+
+def simple_training(n) -> tuple[dict, dict]:
+    training = list(filter(is_word, map(str.lower, brown.words())))
+    gram: dict[str] = {}
+    word_count: dict[str] = {}
+    for i in range((n - 1), len(training)):
+        gram.setdefault(' '.join(training[i - (n - 1): i + 1]), 0)
+        gram[' '.join(training[i - (n - 1): i + 1])] += 1
+    for i in range(len(training)):
+        word_count.setdefault(training[i], 0)
+        word_count[training[i]] += 1
+    return word_count, gram
 
 
 def _unigram_(sentence: str):
@@ -28,6 +45,47 @@ def _unigram_(sentence: str):
             return np.log(1 / len(word_count.values()))
 
     return np.exp(sum(map(n_phrase, sentence.split(' '))))
+
+
+def higher_order_kneser_ney(sentence, discount=0.75) -> float:
+    word_count, gram = simple_training(2)
+
+    def continuation(word):
+        continuation_dict = {}
+        num_word_count, num_word_gram = simple_training(len(word))
+        for i in num_word_gram:
+            split: list[str] = i.split(' ')
+            words, word_i = split[:-1], split[-1]
+            if word_i == word[-1]:
+                continuation_dict.setdefault(' '.join(words), 0)
+                continuation_dict[' '.join(words)] += 1
+        return len(continuation_dict) / len(num_word_gram)
+
+    def interpolation_weight(word):
+        num_word_count, num_word_gram = simple_training(len(word))
+        interpolation_dict = {}
+        for i in num_word_gram:
+            split = i.split(' ')
+            words, word_i = split[:-1], split[-1]
+            if word_i == word[-1]:
+                interpolation_dict.setdefault(word_i, 0)
+                interpolation_dict[word_i] += 1
+        print(interpolation_dict)
+        return discount * len(interpolation_dict) / num_word_count[word[-1]]
+
+    def n_phrase(phrase, num):
+        words = phrase.split(' ')
+        num_word_count, _ = simple_training(num)
+        theta = interpolation_weight(words[-1 * num:]) * continuation(words[-1 * (num + 1):])
+        print(interpolation_weight(words[-1 * num:]), words[-1 * num:])
+        try:
+            x = (gram[phrase] - discount) / sum(num_word_count.values())
+        except KeyError:
+            x = 0
+        print(max(x, 0) + theta)
+        return np.log(max(x, 0) + theta)
+    result = n_set(sentence)
+    return np.exp(sum(map(n_phrase, result, [2] * len(result))))
 
 
 def noisy_channel_graph(noisy_sentence: str, misspell_rate=0.95):
@@ -44,13 +102,6 @@ def noisy_channel_graph(noisy_sentence: str, misspell_rate=0.95):
         prior_words = alternate_spellings
     print(nx.adjacency_matrix(graph))
     raise NotImplementedError('Not complete yet')
-
-
-def recursive_hokn(words: list[str]):
-    if len(words) == 1:
-        return higher_order_kneser_ney(' '.join(words), word_set, 1)
-    else:
-        return recursive_hokn(words[1:]) * higher_order_kneser_ney(' '.join(words), word_set, len(words))
 
 
 def noisy_channel_pairs(noisy_sentence: str, misspell_rate=0.90):
