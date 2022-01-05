@@ -85,3 +85,8 @@ if __name__ == '__main__':
     print('Precision 1:', precision(class_1), '\nPrecision2:', precision(class_2))
     print('Macro-Average Precision:', macro_averaging(precision, result))
     print('Micro-Average Precision:', micro_averaging(precision, result))
+
+
+def binarized_naive_bayes(document: str):
+    binary_check = set([i for i in document])
+

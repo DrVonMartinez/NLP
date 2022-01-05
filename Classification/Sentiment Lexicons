@@ -1,0 +1,49 @@
+Polarity similarity:
+    Adjectives conjoined by "and" same polarity
+    Adjectives conjoined by "but" don't
+
+    -->Results in a Polarity Similarity Graph
+"Fair and Legitimate", "Corrupt and brutal"
+"fair but brutal"
+
+Seed Set:
+    657 positive
+    679 negative
+Conjoined Seed Set:
+    nice, helpful
+    nice, classy
+
+
+Count (AND):
+    Similar polarity
+Count (OR):
+    different polarity
+
+Cluster into two sections + and -
+Output polarity lexicon
+
+Turney Algorithm
+    Extract phrasal lexicon from reviews
+    Learn polarity of each phrase
+    Rate review by average polarity of its phrases
+
+Pointwise Mutual Information:
+    "How much more do events x and y co-occur
+    than if they were independent?"
+    PMI(X,Y) = log2( P(x,y) / (P(x) P(y)) )
+    PMI(X,Y) = log2(P(x,y)) - (log2(P(x)) + log2(P(y)))
+    PMI(word1, word2) = log2( P(word1, word2) / (P(word1) P(word2)) )
+
+Part-of-Speech
+JJ: Adjective
+NN: Noun
+NNS: Plural Noun
+RB: Adverb
+VB: Verb
+
+First Word      Second Word         Third Word
+JJ              NN or NNS           Anything
+RB,RBR,RBS      JJ                  !NN,!NNS
+JJ              JJ                  !NN,!NNS
+!NN,!NNS        JJ                  !NN,!NNS
+RB,RBR,RBS      VB,VBD,VBN,VBG      Anything

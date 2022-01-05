@@ -1,1 +1,4 @@
 /venv/
+/Classification/txt_sentoken/neg/
+/Classification/txt_sentoken/pos/
+/Classification/pathing.py

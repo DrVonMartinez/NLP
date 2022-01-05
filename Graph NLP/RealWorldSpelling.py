@@ -116,9 +116,9 @@ def noisy_channel_pairs(noisy_sentence: str, misspell_rate=0.90):
         for alternate_spelling in alternate_spellings:
             # unigram = _unigram_(alternate_spelling)
             n_gram = _unigram_(alternate_spelling)
-            if alternate_spellings[alternate_spelling] > 0 and unigram > 0:
-                alternate_spelling_seq.append(unigram * alternate_spellings[alternate_spelling])
-                distinct_words.append((alternate_spelling, unigram))
+            if alternate_spellings[alternate_spelling] > 0 and n_gram > 0:
+                alternate_spelling_seq.append(n_gram * alternate_spellings[alternate_spelling])
+                distinct_words.append((alternate_spelling, n_gram))
                 alternate_words.append((alternate_spelling, alternate_spellings[alternate_spelling]))
                 conclusions.append((alternate_spelling, alternate_spelling_seq[-1]))
         index = np.argmax(np.array(alternate_spelling_seq) * 10**9)
