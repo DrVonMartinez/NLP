@@ -3,11 +3,11 @@ from nltk.corpus import reuters
 import pandas as pd
 from functools import reduce
 
-word_set = reuters.words()
-# doc_set = reuters.
-print(reuters.words(), len(word_set))
 
 if __name__ == '__main__':
+    word_set = reuters.words()
+    # doc_set = reuters.
+    print(reuters.words(), len(word_set))
     data = [[95, 1, 13, 0, 1, 0],
             [0, 1, 0, 0, 0, 0],
             [10, 90, 0, 1, 0, 0],
