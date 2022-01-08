@@ -1,0 +1,30 @@
+Joint Model:
+    Bayes
+    Tries to maximize P(document_words, class)
+
+Conditional model:
+    Logistic Regression
+    Gives probabilities P(class, document_words)
+    Tries to maximize conditional likelihood
+
+Features:
+    Elementary pieces of evidence that link aspects of what
+    we observe d with a category c that we want to predict
+
+    f: C x D -> R
+
+    Weights are assigned
+        -> Positive weight votes that this configuration is likely correct
+        -> Positive weight votes that this configuration is likely incorrect
+    Empirical count:
+        Count number of times observed
+    Model expectation:
+        E(f_) = sum((c,d) in (C,D)) P(c,d) f_(c,d)
+
+    f_i(c, d) := [theta(d) ^ c = c_j]
+
+Feature-Based Models:
+    Text Categorization -> Bag of words
+    Word-Sense Disambiguation -> Bag of words,
+        preceding word, succeeding word, length of words
+    POS Tagging -> word, previous word tagging, previous word

@@ -52,6 +52,13 @@ def accuracy(dataset: pd.DataFrame) -> float:
            / dataset.to_numpy().sum()
 
 
+def f1_score(dataset: pd.DataFrame) -> float:
+    _recall_ = recall(dataset)
+    _precision_ = precision(dataset)
+    return 2 * (_precision_ * _recall_) / (_precision_ + _recall_)
+
+
+
 def macro_averaging(func, dataset: list[pd.DataFrame]):
     """
     Macro-averaging:

@@ -47,3 +47,9 @@ RB,RBR,RBS      JJ                  !NN,!NNS
 JJ              JJ                  !NN,!NNS
 !NN,!NNS        JJ                  !NN,!NNS
 RB,RBR,RBS      VB,VBD,VBN,VBG      Anything
+
+Solutions to class imbalances:
+    Resample in training:
+        random _undersampling_
+    Cost-sensitive learning:
+        penalize svm more for misclassification of rare training

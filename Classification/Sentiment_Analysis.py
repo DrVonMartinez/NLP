@@ -5,12 +5,15 @@
 # Advanced:
 # Detect the target, source, or complex attitude types
 import glob
+import progressbar
 
 import nltk
+import pandas as pd
 from nltk.corpus import brown
 import numpy as np
 
 from Classification import pathing
+from Classification.nlp_classifier import macro_averaging, micro_averaging, accuracy
 
 
 def is_word(word):
@@ -19,11 +22,11 @@ def is_word(word):
         word = word.replace(char_list.pop(0), '')
     return str(word).isalnum()
 
-
+'''
 def training_set(size: int) -> list[tuple[str]]:
     words = list(filter(is_word, map(str.lower, brown.words())))
     return [tuple(words[i: i + size]) for i in range(len(words) - size)]
-
+'''
 
 def tokenization():
     """
@@ -116,13 +119,13 @@ def polarity(phrase: tuple[str], training: list[str]):
     def near(term):
         return max(int(term in phrase), 1)
 
-    return np.log2((near("excellent") * hits('poor')) / (near("poor") * hits('excellent')))
+    return -np.log2((near("excellent") * hits('poor')) / (near("poor") * hits('excellent')))
 
 
-def is_turney_pos(word1: str, word2: str, word3: str) -> bool:
+def is_turney_pos(word1: str, word2: str, word3: str, display=False) -> bool:
     tags = {x: y for x, y in nltk.pos_tag([word1, word2, word3])}
-    # print(tags)
-
+    if display:
+        print(tags)
     if tags[word1] == 'JJ':
         if tags[word2] == 'JJ':
             return tags[word3] not in ['NN', 'NNS']
@@ -135,21 +138,58 @@ def is_turney_pos(word1: str, word2: str, word3: str) -> bool:
 
 
 if __name__ == '__main__':
-    print(is_turney_pos('Ran', 'quickly', 'here'))
-    # assert False
-    file_sets = training_sets[0][0] + training_sets[0][1]
-    files = []
+    positive = list(glob.glob(pathing.paths + 'pos\\*.txt'))
+    negative = list(glob.glob(pathing.paths + 'neg\\*.txt'))
+    columns = ['Classifier: yes', 'Classifier: no']
+    rows = ['Truth: yes', 'Truth: no']
+    confusion_matrices = []
+    training_range = [(i, i+100) for i in range(0, 1000, 100)]
+    testing_range = [((i+100) % 1000, (i+900) % 1000) for i in range(0, 1000, 100)]
+    print(training_range)
+    print(testing_range)
+    for i in range(10):
+        training_set = positive[training_range[i][0]: training_range[i][1]]
+        training_set += negative[training_range[i][0]: training_range[i][1]]
+        if i == 0 or i == 9:
+            testing_set = positive[testing_range[i][0]: testing_range[i][1]]
+            testing_set += negative[testing_range[i][0]: testing_range[i][1]]
+        else:
+            testing_set = positive[testing_range[i][0]:] + positive[: testing_range[i][1]]
+            testing_set += negative[testing_range[i][0]:] + negative[: testing_range[i][1]]
+        # validation_set = positive[900:] + negative[900:]
+        training_files = []
+        for file in training_set:
+            with open(file, 'r') as reader:
+                words = [list(filter(is_word, map(str.lower, line.split(' ')))) for line in reader.readlines()]
+                words_set = list(map(lambda x: ' '.join(x), words))
+                training_files += words_set
+        confusion_matrix = pd.DataFrame(data=np.zeros((2, 2)), columns=columns, index=rows)
 
-    for file in file_sets:
-        with open(file, 'r') as reader:
-            lines = (' '.join(reader.readlines())).split(' ')
-            words = list(filter(is_word, map(str.lower, lines)))
-            # print("Words", words)
-            triples = [tuple(words[i: i + 3]) for i in range(len(words) - 3)]
-            phrases = list(filter(lambda x: is_turney_pos(*x), triples))
-            mapped_phrases = list(map(lambda x: is_turney_pos(*x), triples))
-            # print(mapped_phrases)
-            # print(phrases)
-            polarity_values = [polarity(_phrase_, words) for _phrase_ in phrases]
-            if np.average(polarity_values) > 0:
-                print("Polarity:", np.average(polarity_values), mapped_phrases)
+        counter = 0
+        with progressbar.ProgressBar(max_value=len(testing_set)) as bar:
+            for file in testing_set:
+                with open(file, 'r') as reader:
+                    words = [list(filter(is_word, map(str.lower, line.split(' ')))) for line in reader.readlines()]
+                    triples = [tuple(line[i: i + 3]) for line in words for i in range(len(line) - 3)]
+                    phrases = list(filter(lambda x: is_turney_pos(*x), triples))
+                    mapped_phrases = list(filter(lambda x: is_turney_pos(*x), triples))
+                    words_set = list(map(lambda x: ' '.join(x), words))
+                    polarity_values = [polarity(_phrase_, words_set) for _phrase_ in phrases]
+                    avg_polarity = np.average(polarity_values)
+                    if avg_polarity != 0:
+                        _polarity_ = 'Positive' if 'pos' in file else 'Negative'
+                        # print("Polarity:", avg_polarity, _polarity_)
+                        if avg_polarity > 0 and _polarity_ == 'Positive':
+                            confusion_matrix[columns[0]][rows[0]] += 1
+                        elif avg_polarity > 0:
+                            confusion_matrix[columns[0]][rows[1]] += 1
+                        elif avg_polarity < 0 and _polarity_ == 'Negative':
+                            confusion_matrix[columns[1]][rows[1]] += 1
+                        else:
+                            confusion_matrix[columns[1]][rows[0]] += 1
+                bar.update(counter)
+                counter += 1
+            confusion_matrices.append(confusion_matrix)
+            print(confusion_matrix)
+    print('Macro-Average Accuracy:', macro_averaging(accuracy, confusion_matrices))
+    print('Micro-Average Accuracy:', micro_averaging(accuracy, confusion_matrices))
