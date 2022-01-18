@@ -29,7 +29,6 @@ class MaxEntMarkovModel:
     def weights(self):
         return [(str(feature), feature.weight) for feature in self.__features]
 
-
     def evaluate(self, tokens: list[str]):
         self.__create_context(tokens)
         for i in range(len(tokens)):
