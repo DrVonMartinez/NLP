@@ -189,6 +189,17 @@ class VectorSpaceModel:
         self.__document_matrix = pd.concat([self.__document_matrix, tf], axis=1).fillna(0)
         self.__document_matrix.sort_values(list(self.__document_matrix.columns), ascending=False, inplace=True)
 
+    def add_document(self, words: str or list[str], document_name: str):
+        if isinstance(words, list):
+            words = ' '.join(words)
+        stemmer = PorterStemmer()
+        words = word_tokenize(words)
+        stemmed_words = [stemmer.stem(word) for word in words]
+        c = dict(Counter(stemmed_words))
+        tf = pd.DataFrame.from_dict(c, orient='index', columns=document_name)
+        self.__document_matrix = pd.concat([self.__document_matrix, tf], axis=1).fillna(0)
+        self.__document_matrix.sort_values(list(self.__document_matrix.columns), ascending=False, inplace=True)
+
     def load(self, file_path):
         self.__document_matrix = pd.read_csv(file_path, index_col=0)
 
@@ -222,14 +233,14 @@ def extract_titles():
         with open('complete_shakespeare.txt', 'r') as reader:
             lines = reader.readlines()[index_set[i]: index_set[i + 1]]
             title = lines[0][:-1].replace("'", '')
-            with open(title.title() + '.txt', 'w+') as writer:
+            with open('Texts\\' + title.title() + '.txt', 'w+') as writer:
                 for line in lines:
                     writer.write(''.join([q if q.isalnum() or q == ' ' else '' for q in line]) + '\n')
             print(title, 'complete')
 
 
 def train(vsm: VectorSpaceModel):
-    files = list(glob.glob('*.txt'))
+    files = list(glob.glob('Texts\\*.txt'))
     files.remove('complete_shakespeare.txt')
     for file in files:
         vsm.add_file(file)
